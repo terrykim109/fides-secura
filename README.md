@@ -1,13 +1,15 @@
 # Fides Secura
 
-Java/Spring Boot banking transaction API that processes transfers under concurrency controls and detects account takeover by correlating authentication and transfer events into an auditable incident. Thin React UI for demos.
+Java/Spring Boot transaction API that processes transfers with concurrency controls and detects account takeover by correlating authentication and transfer events into auditable incidents.
 
 **Status:** auth slice live (register / login / JWT / lockout / security events). Transfers, ATO correlation, and CI are not implemented yet — see [Limitations](#limitations).
 
 ## Why this exists
 
-- Keep money movement correct under concurrency (next)
-- Detect a stolen-login payout pattern and **hold** the transfer (next)
+My interest in account takeover security kinda began when my Facebook account was hacked years ago and I could never recover my account. That experience showed me how important account protection is, even more so when a compromised account can move money. Fides Secura is my attempt to build that protection into a transaction API, with three goals:
+
+- Keep money movement correct under concurrency (planned)
+- Detect a stolen-login payout pattern and **hold** the transfer (planned)
 - Auth that emits real security events and locks after repeated failures (**done**)
 
 ## Why this shape
@@ -25,13 +27,13 @@ Java/Spring Boot banking transaction API that processes transfers under concurre
 |---|---|
 | API | Java 21, Spring Boot 3, Spring Security, JJWT |
 | DB | PostgreSQL 16, Flyway |
-| Web | React, Vite, TypeScript (thin demo) |
+| Web | React, Vite, TypeScript |
 | Ops | Docker Compose (Postgres) |
 
 ## Repository layout
 
 ```
-api/                 Spring Boot API (main signal)
+api/                 Spring Boot API 
 web/                 Thin React shell
 docker-compose.yml   Postgres
 .env.example         Env var template (never commit real secrets)
@@ -119,7 +121,7 @@ Five consecutive failed logins lock the account for 15 minutes and write `LOGIN_
 | `GET` | `/api/v1/auth/me` | Bearer JWT | Current user |
 | `GET` | `/api/v1/security/capabilities` | public | Sample risk helper output only |
 
-## Intended demo path (transfers + ATO not built yet)
+## Planned workflow (transfers + ATO not built yet)
 
 ```
 failed logins → success from new IP → large transfer
@@ -132,4 +134,4 @@ failed logins → success from new IP → large transfer
 - `/security/capabilities` sample scoring is not wired to live transfers
 - In-memory per-IP login rate limit (resets on restart; not distributed)
 - No GitHub Actions CI yet
-- Defensive controls only; no offensive tooling
+
