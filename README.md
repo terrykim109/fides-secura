@@ -6,19 +6,15 @@ Java/Spring Boot banking transaction API that processes transfers under concurre
 
 ## Why this exists
 
-One bank-relevant story, not a feature zoo:
-
 - Keep money movement correct under concurrency (next)
 - Detect a stolen-login payout pattern and **hold** the transfer (next)
 - Auth that emits real security events and locks after repeated failures (**done**)
-
-Not an AI fraud platform and not a full retail bank.
 
 ## Why this shape
 
 | Choice | Why | Not chosen |
 |---|---|---|
-| Modular monolith (`api/` + thin `web/`) | One demoable attack path without microservice ceremony | Kafka / many services “for the résumé” |
+| Modular monolith (`api/` + thin `web/`) | Keeps transaction and security logic in one consistency boundary | Kafka / many services before needed |
 | PostgreSQL + Flyway | Real constraints and migrations | H2 as the primary database |
 | Bearer JWT | Simple for Vite SPA; document XSS trade-off | httpOnly cookies (valid alternative) |
 | Temporary lockout after 5 failures | Real control that writes `ACCOUNT_LOCKED` events | Log-only “fake” lockout |
@@ -132,7 +128,6 @@ failed logins → success from new IP → large transfer
 
 ## Limitations
 
-- Portfolio / learning system — not production software
 - No transfers, incidents, or ATO correlator yet
 - `/security/capabilities` sample scoring is not wired to live transfers
 - In-memory per-IP login rate limit (resets on restart; not distributed)
