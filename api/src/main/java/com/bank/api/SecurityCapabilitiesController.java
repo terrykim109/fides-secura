@@ -19,8 +19,8 @@ public class SecurityCapabilitiesController {
     public ResponseEntity<Map<String, Object>> capabilities() {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("product", "Fides Secura");
-        body.put("status", "foundation-scaffold");
-        body.put("note", "Sample outputs only; not wired to live auth/transfers");
+        body.put("status", "auth-slice");
+        body.put("note", "Auth/lockout live; transfers and ATO correlator not wired yet");
         body.put("fraudSample", FraudRuleEngine.assess(new BigDecimal("7500.00"), 4, true));
         body.put("correlationSample", SecurityEventCorrelator.previewRule());
         body.put("rolesPlanned", new String[]{"CUSTOMER", "TELLER", "ANALYST", "ADMIN"});

@@ -1,0 +1,14 @@
+package com.bank.api.dto;
+
+import com.bank.domain.Role;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record RegisterRequest(
+        @NotBlank @Email String email,
+        @NotBlank @Size(min = 8, max = 72) String password,
+        @NotBlank @Size(max = 200) String fullName,
+        Role role
+) {
+}

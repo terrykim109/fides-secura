@@ -35,6 +35,10 @@ app:
     refresh-token-days: 7
   cors:
     allowed-origins: http://localhost:5173
+  auth:
+    max-failed-logins: 5
+    lockout-minutes: 15
+    login-rate-limit-per-ip: 30
 
 logging:
   level:

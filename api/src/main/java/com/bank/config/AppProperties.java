@@ -5,7 +5,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "app")
 public record AppProperties(
         Jwt jwt,
-        Cors cors
+        Cors cors,
+        Auth auth
 ) {
     public record Jwt(
             String secret,
@@ -16,6 +17,13 @@ public record AppProperties(
 
     public record Cors(
             String allowedOrigins
+    ) {
+    }
+
+    public record Auth(
+            int maxFailedLogins,
+            long lockoutMinutes,
+            int loginRateLimitPerIp
     ) {
     }
 }
