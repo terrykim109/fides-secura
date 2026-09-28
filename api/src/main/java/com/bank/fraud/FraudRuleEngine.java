@@ -4,9 +4,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Pure scoring helper. Callers must persist signal breakdowns; this class does not touch the DB.
- */
 public final class FraudRuleEngine {
 
     public static final BigDecimal HIGH_AMOUNT_THRESHOLD = new BigDecimal("5000.00");

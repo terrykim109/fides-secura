@@ -19,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,16 +51,9 @@ class AuthServiceTest {
         AppProperties props = new AppProperties(
                 new AppProperties.Jwt("dev-only-change-me-to-a-long-random-secret-key", 15, 7),
                 new AppProperties.Cors("http://localhost:5173"),
-                new AppProperties.Auth(5, 15, 30)
-        );
-        authService = new AuthService(
-                userRepository,
-                passwordEncoder,
-                jwtService,
-                securityEventRecorder,
-                loginRateLimiter,
-                props
-        );
+                new AppProperties.Auth(5, 15, 30));
+        authService = new AuthService(userRepository, passwordEncoder, jwtService,
+                securityEventRecorder, loginRateLimiter, props);
     }
 
     @Test
@@ -71,16 +65,8 @@ class AuthServiceTest {
         var response = authService.login(new LoginRequest("c@example.com", "password1"), "1.1.1.1", "test");
 
         assertEquals("token", response.accessToken());
-        verify(securityEventRecorder).record(
-                eq(SecurityEventTypes.LOGIN_SUCCESS),
-                any(),
-                any(),
-                any(),
-                eq("1.1.1.1"),
-                eq("test"),
-                any(),
-                any()
-        );
+        verify(securityEventRecorder).record(eq(SecurityEventTypes.LOGIN_SUCCESS), any(), any(), any(),
+                eq("1.1.1.1"), eq("test"), any(), any());
     }
 
     @Test
@@ -90,41 +76,27 @@ class AuthServiceTest {
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
         for (int i = 0; i < 4; i++) {
-            ResponseStatusException ex = assertThrows(
-                    ResponseStatusException.class,
-                    () -> authService.login(new LoginRequest("c@example.com", "wrong"), "1.1.1.1", "test")
-            );
+            ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                    () -> authService.login(new LoginRequest("c@example.com", "wrong"), "1.1.1.1", "test"));
             assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
         }
 
-        ResponseStatusException fifth = assertThrows(
-                ResponseStatusException.class,
-                () -> authService.login(new LoginRequest("c@example.com", "wrong"), "1.1.1.1", "test")
-        );
+        ResponseStatusException fifth = assertThrows(ResponseStatusException.class,
+                () -> authService.login(new LoginRequest("c@example.com", "wrong"), "1.1.1.1", "test"));
         assertEquals(HttpStatus.UNAUTHORIZED, fifth.getStatusCode());
 
         ArgumentCaptor<String> typeCaptor = ArgumentCaptor.forClass(String.class);
-        verify(securityEventRecorder, atLeastOnce()).record(
-                typeCaptor.capture(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-                any()
-        );
+        verify(securityEventRecorder, atLeastOnce()).record(typeCaptor.capture(), any(), any(), any(),
+                any(), any(), any(), any());
         assertTrue(typeCaptor.getAllValues().contains(SecurityEventTypes.ACCOUNT_LOCKED));
-        assertTrue(user.isLocked(java.time.Instant.now()));
+        assertTrue(user.isLocked(Instant.now()));
     }
 
     @Test
     void registerRejectsDuplicateEmail() {
         when(userRepository.existsByEmailIgnoreCase("c@example.com")).thenReturn(true);
-        ResponseStatusException ex = assertThrows(
-                ResponseStatusException.class,
-                () -> authService.register(new RegisterRequest("c@example.com", "password1", "C", Role.CUSTOMER))
-        );
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> authService.register(new RegisterRequest("c@example.com", "password1", "C", Role.CUSTOMER)));
         assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
     }
 }

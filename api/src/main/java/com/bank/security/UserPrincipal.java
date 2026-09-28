@@ -22,13 +22,8 @@ public class UserPrincipal implements UserDetails {
         this.enabled = enabled;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public Role getRole() {
-        return role;
-    }
+    public Long getId() { return id; }
+    public Role getRole() { return role; }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -36,32 +31,18 @@ public class UserPrincipal implements UserDetails {
     }
 
     @Override
-    public String getPassword() {
-        return "";
-    }
+    public String getPassword() { return ""; }
 
     @Override
-    public String getUsername() {
-        return email;
-    }
+    public String getUsername() { return email; }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+    public boolean isAccountNonExpired() { return true; }
+    @Override
+    public boolean isAccountNonLocked() { return true; }
+    @Override
+    public boolean isCredentialsNonExpired() { return true; }
 
     @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
+    public boolean isEnabled() { return enabled; }
 }

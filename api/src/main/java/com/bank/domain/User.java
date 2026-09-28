@@ -1,14 +1,6 @@
 package com.bank.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
+import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity
@@ -59,7 +51,7 @@ public class User {
     }
 
     public void registerFailedLogin(int maxFailed, long lockoutMinutes, Instant now) {
-        failedLogins += 1;
+        failedLogins++;
         if (failedLogins >= maxFailed) {
             lockedUntil = now.plusSeconds(lockoutMinutes * 60);
             failedLogins = 0;
@@ -71,39 +63,13 @@ public class User {
         lockedUntil = null;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public int getFailedLogins() {
-        return failedLogins;
-    }
-
-    public Instant getLockedUntil() {
-        return lockedUntil;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
+    public Long getId() { return id; }
+    public String getEmail() { return email; }
+    public String getPasswordHash() { return passwordHash; }
+    public String getFullName() { return fullName; }
+    public Role getRole() { return role; }
+    public boolean isEnabled() { return enabled; }
+    public int getFailedLogins() { return failedLogins; }
+    public Instant getLockedUntil() { return lockedUntil; }
+    public Instant getCreatedAt() { return createdAt; }
 }

@@ -29,14 +29,9 @@ public class AuthService {
     private final LoginRateLimiter loginRateLimiter;
     private final AppProperties appProperties;
 
-    public AuthService(
-            UserRepository userRepository,
-            PasswordEncoder passwordEncoder,
-            JwtService jwtService,
-            SecurityEventRecorder securityEventRecorder,
-            LoginRateLimiter loginRateLimiter,
-            AppProperties appProperties
-    ) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, SecurityEventRecorder securityEventRecorder,
+                       LoginRateLimiter loginRateLimiter, AppProperties appProperties) 
+    {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -48,20 +43,19 @@ public class AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         String email = request.email().trim().toLowerCase();
+        
         if (userRepository.existsByEmailIgnoreCase(email)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
         }
         Role role = request.role() == null ? Role.CUSTOMER : request.role();
+        
         if (role == Role.ADMIN || role == Role.ANALYST) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot self-register privileged roles");
         }
-        User user = new User(
-                email,
-                passwordEncoder.encode(request.password()),
-                request.fullName().trim(),
-                role
-        );
+        User user = new User(email, passwordEncoder.encode(request.password()),
+                request.fullName().trim(), role);
         userRepository.save(user);
+        
         String token = jwtService.createAccessToken(user.getId(), user.getEmail(), user.getRole());
         return new AuthResponse(token, UserResponse.from(user));
     }
@@ -75,16 +69,8 @@ public class AuthService {
         User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
 
         if (user == null) {
-            securityEventRecorder.record(
-                    SecurityEventTypes.LOGIN_FAILURE,
-                    SecuritySeverity.LOW,
-                    null,
-                    null,
-                    ipAddress,
-                    userAgent,
-                    null,
-                    "{\"reason\":\"unknown_email\"}"
-            );
+            securityEventRecorder.record(SecurityEventTypes.LOGIN_FAILURE, SecuritySeverity.LOW,
+                    null, null, ipAddress, userAgent, null, "{\"reason\":\"unknown_email\"}");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
         }
 
@@ -93,16 +79,9 @@ public class AuthService {
         }
 
         if (user.isLocked(now)) {
-            securityEventRecorder.record(
-                    SecurityEventTypes.ACCOUNT_LOCKED,
-                    SecuritySeverity.MEDIUM,
-                    user.getId(),
-                    user.getId(),
-                    ipAddress,
-                    userAgent,
-                    null,
-                    "{\"reason\":\"still_locked\",\"lockedUntil\":\"" + user.getLockedUntil() + "\"}"
-            );
+            securityEventRecorder.record(SecurityEventTypes.ACCOUNT_LOCKED, SecuritySeverity.MEDIUM,
+                    user.getId(), user.getId(), ipAddress, userAgent, null,
+                    "{\"reason\":\"still_locked\",\"lockedUntil\":\"" + user.getLockedUntil() + "\"}");
             throw new ResponseStatusException(HttpStatus.LOCKED, "Account temporarily locked");
         }
 
@@ -113,27 +92,13 @@ public class AuthService {
             userRepository.save(user);
 
             boolean justLocked = user.getLockedUntil() != null && user.getLockedUntil().isAfter(now);
-            securityEventRecorder.record(
-                    SecurityEventTypes.LOGIN_FAILURE,
-                    SecuritySeverity.LOW,
-                    user.getId(),
-                    user.getId(),
-                    ipAddress,
-                    userAgent,
-                    null,
-                    "{\"failedLoginsBeforeLockLogic\":true}"
-            );
+            securityEventRecorder.record(SecurityEventTypes.LOGIN_FAILURE, SecuritySeverity.LOW,
+                    user.getId(), user.getId(), ipAddress, userAgent, null,
+                    "{\"failedLoginsBeforeLockLogic\":true}");
             if (justLocked) {
-                securityEventRecorder.record(
-                        SecurityEventTypes.ACCOUNT_LOCKED,
-                        SecuritySeverity.HIGH,
-                        user.getId(),
-                        user.getId(),
-                        ipAddress,
-                        userAgent,
-                        null,
-                        "{\"lockoutMinutes\":" + lockMinutes + "}"
-                );
+                securityEventRecorder.record(SecurityEventTypes.ACCOUNT_LOCKED, SecuritySeverity.HIGH,
+                        user.getId(), user.getId(), ipAddress, userAgent, null,
+                        "{\"lockoutMinutes\":" + lockMinutes + "}");
             }
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
         }
@@ -141,16 +106,9 @@ public class AuthService {
         user.clearLockoutState();
         userRepository.save(user);
 
-        securityEventRecorder.record(
-                SecurityEventTypes.LOGIN_SUCCESS,
-                SecuritySeverity.INFO,
-                user.getId(),
-                user.getId(),
-                ipAddress,
-                userAgent,
-                null,
-                "{\"ip\":\"" + sanitize(ipAddress) + "\"}"
-        );
+        securityEventRecorder.record(SecurityEventTypes.LOGIN_SUCCESS, SecuritySeverity.INFO,
+                user.getId(), user.getId(), ipAddress, userAgent, null,
+                "{\"ip\":\"" + sanitize(ipAddress) + "\"}");
 
         String token = jwtService.createAccessToken(user.getId(), user.getEmail(), user.getRole());
         return new AuthResponse(token, UserResponse.from(user));
@@ -164,9 +122,6 @@ public class AuthService {
     }
 
     private static String sanitize(String value) {
-        if (value == null) {
-            return "";
-        }
-        return value.replace("\"", "");
+        return value == null ? "" : value.replace("\"", "");
     }
 }

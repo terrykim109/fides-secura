@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.Instant;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -27,34 +28,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException 
+    {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
+            
             try {
                 Claims claims = jwtService.parse(token);
                 Long userId = Long.valueOf(claims.getSubject());
                 userRepository.findById(userId).ifPresent(user -> {
-                    if (user.isEnabled() && !user.isLocked(java.time.Instant.now())) {
+                    if (user.isEnabled() && !user.isLocked(Instant.now())) {
                         UserPrincipal principal = new UserPrincipal(
-                                user.getId(),
-                                user.getEmail(),
-                                user.getRole(),
-                                user.isEnabled()
-                        );
+                                user.getId(), user.getEmail(), user.getRole(), user.isEnabled());
                         var auth = new UsernamePasswordAuthenticationToken(
-                                principal,
-                                null,
-                                principal.getAuthorities()
-                        );
+                                principal, null, principal.getAuthorities());
                         SecurityContextHolder.getContext().setAuthentication(auth);
                     }
                 });
-            } catch (JwtException | IllegalArgumentException ignored) {
+            } catch (JwtException | IllegalArgumentException ignored) 
+            { 
                 SecurityContextHolder.clearContext();
             }
         }

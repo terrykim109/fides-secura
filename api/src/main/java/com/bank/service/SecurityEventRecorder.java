@@ -16,25 +16,10 @@ public class SecurityEventRecorder {
     }
 
     @Transactional
-    public SecurityEvent record(
-            String eventType,
-            SecuritySeverity severity,
-            Long actorUserId,
-            Long subjectUserId,
-            String ipAddress,
-            String userAgent,
-            String correlationId,
-            String payload
-    ) {
-        return securityEventRepository.save(new SecurityEvent(
-                eventType,
-                severity,
-                actorUserId,
-                subjectUserId,
-                ipAddress,
-                userAgent,
-                correlationId,
-                payload
-        ));
+    public SecurityEvent record(String eventType, SecuritySeverity severity, Long actorUserId,
+                                Long subjectUserId, String ipAddress, String userAgent,
+                                String correlationId, String payload) {
+        return securityEventRepository.save(new SecurityEvent(eventType, severity, actorUserId,
+                subjectUserId, ipAddress, userAgent, correlationId, payload));
     }
 }

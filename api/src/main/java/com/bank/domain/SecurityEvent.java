@@ -1,14 +1,6 @@
 package com.bank.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
+import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity
@@ -50,16 +42,9 @@ public class SecurityEvent {
     protected SecurityEvent() {
     }
 
-    public SecurityEvent(
-            String eventType,
-            SecuritySeverity severity,
-            Long actorUserId,
-            Long subjectUserId,
-            String ipAddress,
-            String userAgent,
-            String correlationId,
-            String payload
-    ) {
+    public SecurityEvent(String eventType, SecuritySeverity severity,
+                         Long actorUserId, Long subjectUserId, String ipAddress,
+                         String userAgent, String correlationId, String payload) {
         this.eventType = eventType;
         this.severity = severity;
         this.actorUserId = actorUserId;
@@ -70,27 +55,10 @@ public class SecurityEvent {
         this.payload = payload;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getEventType() {
-        return eventType;
-    }
-
-    public SecuritySeverity getSeverity() {
-        return severity;
-    }
-
-    public Long getSubjectUserId() {
-        return subjectUserId;
-    }
-
-    public String getIpAddress() {
-        return ipAddress;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
+    public Long getId() { return id; }
+    public String getEventType() { return eventType; }
+    public SecuritySeverity getSeverity() { return severity; }
+    public Long getSubjectUserId() { return subjectUserId; }
+    public String getIpAddress() { return ipAddress; }
+    public Instant getCreatedAt() { return createdAt; }
 }

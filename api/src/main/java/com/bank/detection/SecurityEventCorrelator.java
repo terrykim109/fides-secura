@@ -1,8 +1,5 @@
 package com.bank.detection;
 
-/**
- * Placeholder for ACCOUNT_TAKEOVER_V1. Real correlation belongs with security_events queries + tests.
- */
 public final class SecurityEventCorrelator {
 
     public static final String RULE_BRUTE_FORCE_THEN_TRANSFER = "BRUTE_FORCE_THEN_LARGE_TRANSFER";
@@ -10,15 +7,9 @@ public final class SecurityEventCorrelator {
     private SecurityEventCorrelator() {
     }
 
-    public record CorrelationHit(
-            String ruleName,
-            String title,
-            String severity,
-            String summary
-    ) {
+    public record CorrelationHit(String ruleName, String title, String severity, String summary) {
     }
 
-    /** Demo preview only — not backed by persisted events. */
     public static CorrelationHit previewRule() {
         return new CorrelationHit(
                 RULE_BRUTE_FORCE_THEN_TRANSFER,
