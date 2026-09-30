@@ -39,6 +39,10 @@ app:
     max-failed-logins: 5
     lockout-minutes: 15
     login-rate-limit-per-ip: 30
+  detection:
+    lookback-minutes: 30
+    min-failed-logins: 3
+    large-transfer-threshold: 5000.00
 
 logging:
   level:

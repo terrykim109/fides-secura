@@ -51,7 +51,9 @@ class AuthServiceTest {
         AppProperties props = new AppProperties(
                 new AppProperties.Jwt("dev-only-change-me-to-a-long-random-secret-key", 15, 7),
                 new AppProperties.Cors("http://localhost:5173"),
-                new AppProperties.Auth(5, 15, 30));
+                new AppProperties.Auth(5, 15, 30),
+                new AppProperties.Detection(30, 3, new java.math.BigDecimal("5000.00"))
+        );
         authService = new AuthService(userRepository, passwordEncoder, jwtService,
                 securityEventRecorder, loginRateLimiter, props);
     }

@@ -52,6 +52,18 @@ public class Transfer {
         this.initiatedBy = initiatedBy;
     }
 
+    public void markPendingReview() {
+        this.status = TransferStatus.PENDING_REVIEW;
+    }
+
+    public void markCompleted() {
+        this.status = TransferStatus.COMPLETED;
+    }
+
+    public void markFailed() {
+        this.status = TransferStatus.FAILED;
+    }
+
     public Long getId() { return id; }
     public String getIdempotencyKey() { return idempotencyKey; }
     public Long getFromAccountId() { return fromAccountId; }

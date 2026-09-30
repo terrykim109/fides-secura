@@ -1,17 +1,6 @@
 package com.bank.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -40,7 +29,6 @@ public class Account {
     private BigDecimal balance = BigDecimal.ZERO;
 
     @Version
-    @Column(nullable = false)
     private long version;
 
     @Enumerated(EnumType.STRING)
@@ -53,26 +41,21 @@ public class Account {
     protected Account() {
     }
 
-    public Account(Long customerId, String accountNumber, AccountType accountType, BigDecimal openingBalance) {
+    public Account(Long customerId, String accountNumber, AccountType accountType,
+                   BigDecimal openingBalance) {
         this.customerId = customerId;
         this.accountNumber = accountNumber;
         this.accountType = accountType;
         this.balance = openingBalance == null ? BigDecimal.ZERO : openingBalance;
     }
 
-    public void requireActive() {
-        if (status != AccountStatus.ACTIVE) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Account is not active");
-        }
-    }
-
     public void debit(BigDecimal amount) {
         requireActive();
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Amount must be positive");
+            throw new IllegalArgumentException("Amount must be positive");
         }
         if (balance.compareTo(amount) < 0) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Insufficient funds");
+            throw new IllegalStateException("Insufficient funds");
         }
         balance = balance.subtract(amount);
     }
@@ -80,44 +63,24 @@ public class Account {
     public void credit(BigDecimal amount) {
         requireActive();
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Amount must be positive");
+            throw new IllegalArgumentException("Amount must be positive");
         }
         balance = balance.add(amount);
     }
 
-    public Long getId() {
-        return id;
+    private void requireActive() {
+        if (status != AccountStatus.ACTIVE) {
+            throw new IllegalStateException("Account is not active");
+        }
     }
 
-    public Long getCustomerId() {
-        return customerId;
-    }
-
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-
-    public AccountType getAccountType() {
-        return accountType;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public BigDecimal getBalance() {
-        return balance;
-    }
-
-    public long getVersion() {
-        return version;
-    }
-
-    public AccountStatus getStatus() {
-        return status;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
+    public Long getId() { return id; }
+    public Long getCustomerId() { return customerId; }
+    public String getAccountNumber() { return accountNumber; }
+    public AccountType getAccountType() { return accountType; }
+    public String getCurrency() { return currency; }
+    public BigDecimal getBalance() { return balance; }
+    public long getVersion() { return version; }
+    public AccountStatus getStatus() { return status; }
+    public Instant getCreatedAt() { return createdAt; }
 }

@@ -219,3 +219,39 @@ export async function createTransfer(
   }
   return res.json() as Promise<TransferResponse>;
 }
+
+export type IncidentResponse = {
+  id: number;
+  title: string;
+  severity: string;
+  status: string;
+  ruleName: string;
+  summary: string;
+  subjectUserId: number | null;
+  transferId: number | null;
+  createdAt: string;
+};
+
+export async function fetchIncidents(status: "open" | "all" = "open"): Promise<IncidentResponse[]> {
+  const res = await fetch(`${API_BASE}/api/v1/incidents?status=${status}`, {
+    headers: authHeaders(),
+  });
+  if (!res.ok) {
+    throw new Error(await readError(res, "Incidents failed"));
+  }
+  return res.json() as Promise<IncidentResponse[]>;
+}
+
+export async function decideIncident(
+  id: number,
+  decision: "approve" | "reject",
+): Promise<TransferResponse> {
+  const res = await fetch(`${API_BASE}/api/v1/incidents/${id}/${decision}`, {
+    method: "POST",
+    headers: authHeaders(),
+  });
+  if (!res.ok) {
+    throw new Error(await readError(res, `Incident ${decision} failed`));
+  }
+  return res.json() as Promise<TransferResponse>;
+}
