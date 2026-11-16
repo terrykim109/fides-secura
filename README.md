@@ -1,8 +1,6 @@
 # Fides Secura
 
-I built this because my Facebook got taken over years ago and I never got it back. That stuck with me — not as “cyber buzzwords,” but as the feeling that once someone else owns the login, you’re done. Banking makes that worse: a stolen session doesn’t just post as you, it can move money.
-
-So this is a small Java/Spring Boot transaction API where the interesting part isn’t the CRUD. It’s:
+This is a small Java/Spring Boot transaction API where the interesting part isn’t the CRUD. It’s:
 
 1. Can transfers stay correct when two requests hit at once?
 2. Can the system notice a brute-force → new-IP login → large payout pattern and **hold** the money before it leaves?
@@ -10,9 +8,7 @@ So this is a small Java/Spring Boot transaction API where the interesting part i
 
 **What works today:** register/login with lockout + security events, accounts & idempotent transfers with row locking, ATO hold → incident → analyst decision, seeded demo users, Testcontainers e2e, GitHub Actions CI.
 
-I’m aiming this at bank / backend / AppSec-adjacent internships (Toronto-area). It’s deliberately narrow on purpose — one vertical slice done honestly beats a fake “fraud platform.”
-
-## Why these choices (not buzzword bingo)
+## Why these choices 
 
 | I chose… | Because… | I didn’t… |
 |---|---|---|
@@ -48,7 +44,7 @@ HTTP → JwtAuthenticationFilter → Controller → @Transactional Service
     → Repository / row locks → Postgres (+ security_events / incidents)
 ```
 
-### The ATO path I care about
+### The ATO path 
 
 ```text
 Failed logins → success from a new IP → large transfer attempt
@@ -62,8 +58,6 @@ Failed logins → success from a new IP → large transfer attempt
          analyst approve → money moves
          analyst reject  → FAILED, still untouched
 ```
-
-That’s the story: don’t let the payout complete while you’re still figuring out that the login was stolen.
 
 ## Stack
 
@@ -90,7 +84,7 @@ UI: `http://localhost:5173` (Vite proxies `/api`).
 cd api && mvn test
 ```
 
-## Demo accounts (seeded so you don’t need SQL)
+## Demo accounts and walk-through steps
 
 | Email | Password | Role | Notes |
 |---|---|---|---|
@@ -100,8 +94,6 @@ cd api && mvn test
 
 Turn off with `DEMO_SEED=false`.
 
-## Walk the ATO demo (this is the point of the repo)
-
 1. Sign in as **customer** (login page has a “Fill customer” chip).
 2. Fail login **3×** with a wrong password. For a clean “new IP” story via curl, send `X-Forwarded-For: 203.0.113.50`.
 3. Sign in successfully from that new IP.
@@ -109,29 +101,15 @@ Turn off with `DEMO_SEED=false`.
 5. Status should be `PENDING_REVIEW` — balances **don’t** change.
 6. Sign in as **analyst** → Security console → Approve or Reject.
 
-If step 5 completes the transfer instead of holding it, the correlator didn’t see enough failures / new-IP success in the lookback window. That’s a feature of a narrow rule, not magic AI fraud.
+If step 5 completes the transfer instead of holding it, the correlator didn’t see enough failures / new-IP success in the lookback window. That’s a feature of a narrow rule.
 
-## The rule (one pattern, on purpose)
+## The rule (one single pattern)
 
 `BRUTE_FORCE_THEN_LARGE_TRANSFER`
 
 Defaults: **3+** failures in **30 minutes**, then `LOGIN_SUCCESS` from an IP that isn’t in the user’s prior success history, then a transfer **≥ 5000 CAD** from that IP → hold + `TRANSFER_FLAGGED` + open incident.
 
-I kept it to one correlator so I can explain every branch in an interview. Broadening it without tests would just be theater.
-
-## Deploy note (Vercel)
-
-Vercel only hosts the React shell. Host the API + Postgres somewhere else, set `VITE_API_BASE` for the build and `CORS_ALLOWED_ORIGINS` on the API. The login page alone won’t prove detection — the hold + analyst screen will.
-
 ## CI
 
 `.github/workflows/ci.yml` runs API tests (ATO e2e via Testcontainers when Docker is available) and builds `web/`.
 
-## What this is not (yet / on purpose)
-
-- Not a full bank core, not PCI, not “production fraud AI”
-- Deposit is a demo faucet so you can fund accounts quickly
-- Login rate limit is in-memory per IP (fine for a laptop demo, not a cluster)
-- One ATO pattern — I’d rather defend one rule than list twenty I never wired up
-
-If you’re reading this as a recruiter: ask me to walk the race on transfers, or the hold path end-to-end. That’s where the project lives.
