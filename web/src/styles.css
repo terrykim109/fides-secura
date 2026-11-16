@@ -164,6 +164,63 @@ select {
   line-height: 1.7;
 }
 
+.demo-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1.25rem;
+}
+
+button.chip {
+  padding: 0.45rem 0.75rem;
+  background: transparent;
+  color: var(--brand);
+  border: 1px solid var(--line);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+button.chip:hover {
+  background: rgba(26, 69, 88, 0.06);
+}
+
+code {
+  font-size: 0.88em;
+  background: rgba(20, 35, 46, 0.06);
+  padding: 0.1rem 0.35rem;
+}
+
+.hold-callout {
+  margin: 1rem 0;
+  padding: 1rem 1.1rem;
+  border-left: 3px solid var(--accent);
+  background: rgba(196, 92, 38, 0.08);
+}
+
+.hold-callout h3 {
+  margin-top: 0;
+}
+
+.incident-card {
+  margin: 0 0 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.incident-card h4 {
+  margin: 0.75rem 0 0.35rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.timeline {
+  margin: 0.25rem 0 0.75rem;
+  padding-left: 1.2rem;
+  line-height: 1.55;
+}
+
 h3 {
   margin: 1.25rem 0 0.5rem;
   font-size: 1rem;

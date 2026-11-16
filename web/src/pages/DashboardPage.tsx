@@ -157,9 +157,11 @@ export function DashboardPage() {
       </header>
 
       <main className="content">
-        <h1>Workspace</h1>
+        <h1>Your money</h1>
         <p className="lede">
-          Open accounts, fund them, and move money with idempotent transfers.
+          If a payout looks like a stolen login, we hold it and tell you why —
+          not silent loss. Seeded customer starts near $10k; after failed logins
+          from a new IP, try sending ≥ $5,000.
         </p>
 
         {error && <p className="error">{error}</p>}
@@ -288,6 +290,21 @@ export function DashboardPage() {
             Idempotency-Key.
           </p>
 
+          {transfers.some((t) => t.status === "PENDING_REVIEW") && (
+            <div className="hold-callout">
+              <h3>Held — money did not leave</h3>
+              {transfers
+                .filter((t) => t.status === "PENDING_REVIEW")
+                .map((t) => (
+                  <p key={t.id}>
+                    Transfer #{t.id} ({t.currency} {money(t.amount)}):{" "}
+                    {t.customerMessage ??
+                      "Stopped for review after a suspicious login pattern."}
+                  </p>
+                ))}
+            </div>
+          )}
+
           <h3>Recent transfers</h3>
           {transfers.length === 0 ? (
             <p className="muted">None yet.</p>
@@ -297,6 +314,12 @@ export function DashboardPage() {
                 <li key={t.id}>
                   #{t.id} {t.status}: {t.fromAccountId} → {t.toAccountId} · {t.currency}{" "}
                   {money(t.amount)}
+                  {t.customerMessage ? (
+                    <>
+                      <br />
+                      <span className="muted">{t.customerMessage}</span>
+                    </>
+                  ) : null}
                 </li>
               ))}
             </ul>

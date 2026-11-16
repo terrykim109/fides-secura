@@ -3,7 +3,7 @@ package com.bank.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "app")
-public record AppProperties(Jwt jwt, Cors cors, Auth auth, Detection detection) {
+public record AppProperties(Jwt jwt, Cors cors, Auth auth, Detection detection, Demo demo) {
 
     public record Jwt(String secret, long accessTokenMinutes, long refreshTokenDays) {
     }
@@ -19,5 +19,8 @@ public record AppProperties(Jwt jwt, Cors cors, Auth auth, Detection detection) 
             int minFailedLogins,
             java.math.BigDecimal largeTransferThreshold
     ) {
+    }
+
+    public record Demo(boolean seed) {
     }
 }

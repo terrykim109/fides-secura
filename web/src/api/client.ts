@@ -1,4 +1,5 @@
-const API_BASE = "";
+/** Empty in local dev (Vite proxies /api). Set VITE_API_BASE for Vercel → hosted API. */
+const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined)?.replace(/\/$/, "") ?? "";
 
 export type HealthResponse = {
   status: string;
@@ -137,6 +138,7 @@ export type TransferResponse = {
   currency: string;
   status: string;
   createdAt: string;
+  customerMessage?: string | null;
 };
 
 function authHeaders(extra?: Record<string, string>): HeadersInit {
@@ -220,6 +222,14 @@ export async function createTransfer(
   return res.json() as Promise<TransferResponse>;
 }
 
+export type TimelineBeat = {
+  eventId: number;
+  eventType: string;
+  ipAddress: string | null;
+  at: string;
+  plainEnglish: string;
+};
+
 export type IncidentResponse = {
   id: number;
   title: string;
@@ -230,6 +240,7 @@ export type IncidentResponse = {
   subjectUserId: number | null;
   transferId: number | null;
   createdAt: string;
+  timeline?: TimelineBeat[];
 };
 
 export async function fetchIncidents(status: "open" | "all" = "open"): Promise<IncidentResponse[]> {

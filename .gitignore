@@ -18,6 +18,7 @@ web/.env.local
 .env
 .env.*
 !.env.example
+!web/.env.example
 *.pem
 *.p12
 
